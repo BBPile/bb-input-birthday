@@ -1,0 +1,56 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-validator-behavior/iron-validator-behavior.html">
+
+<script>
+  Polymer({
+    is: 'bb-input-birthday-validator',
+
+    behaviors: [
+      Polymer.IronValidatorBehavior
+    ],
+    properties: {
+      limitAge: {
+        type: Number,
+        value: 0
+      },
+      delimiter: {
+        type: String,
+        value: '-'
+      }
+    },
+    // validate the value and its date-format for birthday.
+    validate: function(value) {
+      var isValid = true;
+      var codeVal='';
+      var arr = value.split(this.delimiter)
+
+      for (var i=0, len=arr.length; i<len; i++) {
+          if(i==0) {
+            //  Year-range ('1900' < year <= this year - limitAge)
+            isValid = arr[i] > 1900 && arr[i] <= (new Date().getFullYear() - this.limitAge) ? true: false;
+            codeVal = !isValid ? 'error-year' : '';
+
+          } else if (isValid && i == 1) {
+            //  Month-range ('01' <= month <= '12')
+            isValid = arr[i] >= 1 && arr[i] <= 12 ? true: false;
+            codeVal = !isValid ? 'error-month' : '';
+
+          } else if (isValid && i == 2) {
+            //  Day-range ('01' <= day <= last day of this month)
+            isValid = arr[i] >= 1 && arr[i] <= (new Date(arr[0],arr[1],0)).getDate() ? true: false;
+            codeVal = !isValid ? 'error-day' : '';
+
+          }
+
+          // announce error-message
+          if (!isValid) {
+            this.fire('bb-input-birthday-error-message',{code:codeVal});
+            arr = null;
+            return isValid;
+          }
+
+      }
+      return isValid;
+    }
+  });
+</script>

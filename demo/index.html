@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+  <head>
+    <title>bb-input-birthday demo</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+
+    <link rel="import" href="../bb-input-birthday.html">
+    <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
+    <link rel="import" href="../../iron-icons/iron-icons.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+    </style>
+  </head>
+  <body unresolved>
+
+    <div class="vertical-section-container centered">
+      <h3>Basic bb-input-birthday Demo</h3>
+      <demo-snippet>
+        <template>
+
+          <bb-input-birthday
+                id="inputBirthday"
+                label="Birthday(yyyy-mm-dd)"
+                delimiter="."
+                limit-age="15"
+                show-value>
+                <paper-icon-button class="clear" suffix icon="icons:clear" on-tap="_clearInput" alt="clear" title="clear" tabindex="-1"></paper-icon-button>
+              </bb-input-birthday>
+          <button type="button" id="button" onclick="clickMe()">Click me</button>
+        </template>
+      </demo-snippet>
+    </div>
+
+    <script>
+        function clickMe() {
+          document.getElementById('inputBirthday')
+                  .addEventListener('bb-input-birthday-error-message',function (e) {
+                    var msg = '';
+                    console.log(e.detail.code); // true
+
+                    if(e.detail.code == 'error-year'){
+                      msg= 'Year is less than 15 years';
+                    }
+                    else if(e.detail.code == 'error-month'){
+                      msg= 'Month ranges is incorrect';
+                    }
+                    else if(e.detail.code == 'error-day'){
+                      msg= 'Day ranges is incorrect';
+                    }
+                    Polymer.dom(this).setAttribute('error-message',msg);
+                    // e.target.setAttribute('error-message',msg);
+          });
+
+          document.getElementById('inputBirthday').setValue('1970.03.20');
+
+        }
+
+        function _clearInput(e){
+            e.currentTarget.parentNode.setValue('--');
+
+        }
+
+    </script>
+  </body>
+</html>

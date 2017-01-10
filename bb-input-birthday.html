@@ -1,0 +1,149 @@
+<!--
+  @license This all copyrights belong to Mr.Won,Wooseok.
+  Program     : bb-input-birthday element
+  Description : The input value has a date-format as birthday.
+                If the part of the year is invalid, error-code is 'error-year'.
+                If the part of the month is invalid, error-code is 'error-month'.
+                If the part of the day is invalid, error-code is 'error-day'.
+                If the pattern is invalid, error-code is 'error-full'.
+
+  Author      : Won Wooseok
+  Date        : 2017-01-07
+-->
+
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-input/paper-input-container.html">
+<link rel="import" href="../paper-input/paper-input-error.html">
+<link rel="import" href="bb-input-date.html">
+
+<dom-module id="bb-input-birthday">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+        width: 100%;
+      }
+      :host([hidden]) {
+        display: none !important;
+      }
+      :host([focused]) {
+        outline: none;
+      }
+
+      :host([hidden]) {
+        display: none !important;
+      }
+
+      bb-input-date::-webkit-input-placeholder {
+        color: var(--paper-input-container-color, --secondary-text-color);
+      }
+
+      bb-input-date:-moz-placeholder {
+        color: var(--paper-input-container-color, --secondary-text-color);
+      }
+
+      bb-input-date::-moz-placeholder {
+        color: var(--paper-input-container-color, --secondary-text-color);
+      }
+
+      bb-input-date:-ms-input-placeholder {
+        color: var(--paper-input-container-color, --secondary-text-color);
+      }
+
+      label {
+        pointer-events: none;
+      }
+      p {
+        color: blue;
+      }
+    </style>
+    <paper-input-container always-float-label auto-validate attr-for-value="value">
+      <content select="[prefix]"></content>
+      <label>[[label]]</label>
+      <bb-input-date id="bbInputDate"
+            class="paper-input-input"
+            delimiter="[[delimiter]]"
+            limit-age="[[limitAge]]"
+            invalid="{{invalid}}"
+            value="{{value}}"></bb-input-date>
+      <content select="[suffix]"></content>
+      <template is="dom-if" if="{{errorMessage}}">
+        <paper-input-error>{{errorMessage}}</paper-input-error>
+      </template>
+    </paper-input-container>
+    <template is="dom-if" if="[[showValue]]">
+      <p>Value is {{value}}</p>
+    </template>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'bb-input-birthday',
+      properties: {
+        value: {
+          type: String,
+          notify: true,
+          reflectToAttribute: true
+        },
+        label: {
+          type: String,
+          value: 'Birthday'
+        },
+        delimiter: {
+          type: String
+        },
+        limitAge: {
+          type: Number,
+          value: 0
+        },
+        errorMessage: {
+          type: String,
+          notify: true
+        },
+        invalid: {
+          type: Boolean,
+          observer: '_invalidChanged'
+        },
+        showValue: {
+          type: Boolean,
+          value: false
+        }
+
+      },
+      // listeners: {
+      //   'bb-input-birthday-error-message': '_handleError'
+      // },
+      // override this method where you may need to translate error-code to other language.
+      // _handleError: function(event) {
+      //   console.log('event code = ' + event.detail.code);
+      //
+      //   this.error = event.detail.code;
+      // },
+      /**
+       * set String date-value to an respective input-element by spliting them.
+       */
+      setValue: function(val) {
+        if(val) {
+          var arr = val.split(this.delimiter);
+          if( arr ) {
+            if( arr[0] !== 'undefined')
+              this.$.bbInputDate._year=arr[0];
+            if( arr[1] !== 'undefined')
+              this.$.bbInputDate._month=arr[1];
+            if( arr[2] !== 'undefined')
+              this.$.bbInputDate._day=arr[2];
+          }
+          arr = null;
+        }
+      },
+      _invalidChanged: function() {
+        if (!this.invalid) {
+          this.value = this.$.bbInputDate.value;
+        }
+      }
+    });
+  </script>
+</dom-module>
