@@ -1,0 +1,125 @@
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../iron-validatable-behavior/iron-validatable-behavior.html">
+<link rel="import" href="bb-input-birthday-validator.html">
+
+<dom-module id="bb-input-date">
+  <template>
+    <style>
+      :host {
+        display: inline-block;
+      }
+      :host([hidden]) {
+        display: none !important;
+      }
+      input[is="iron-input"] {
+        font: inherit;
+        outline: none;
+        box-shadow: none;
+        border: none;
+        width: auto;
+        text-align: center;
+      }
+      input {
+        padding-left: 2px;
+      }
+      .container {
+        @apply(--layout-horizontal);
+      }
+      .year {
+        @apply(--layout-flex-2);
+      }
+      .month {
+        @apply(--layout-flex);
+      }
+      .day {
+        @apply(--layout-flex);
+      }
+    </style>
+    <bb-input-birthday-validator
+              limit-age="[[limitAge]]"
+              delimiter="[[delimiter]]" ></bb-input-birthday-validator>
+    <div class="container">
+      <input is="iron-input"
+              class="year"
+              maxlength="4"
+              bind-value="{{_year}}"
+              size="4"
+              aria-label="">
+                [[delimiter]]</input>
+      <input is="iron-input"
+              class="month"
+              maxlength="2"
+              bind-value="{{_month}}"
+              size="2"
+              aria-label="">
+                [[delimiter]]</input>
+      <input is="iron-input"
+              class="day"
+              maxlength="2"
+              bind-value="{{_day}}"
+              size="2"
+              aria-label="">
+      </input>
+    </div>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'bb-input-date',
+      behaviors: [
+        Polymer.IronValidatableBehavior
+      ],
+      properties: {
+        value: {
+          notify: true,
+          type: String
+        },
+        _year: {
+          type: String,
+          notify: true
+        },
+        _month: {
+          type: String,
+          notify: true
+        },
+        _day: {
+          type: String,
+          notify: true
+        },
+        validator: {
+          type: String,
+          value: 'bb-input-birthday-validator'
+        },
+        // delimiter where put it into an inter space between items(year,month,and day)
+        delimiter: {
+          type: String,
+          value: '-'
+        },
+        // target to validate
+        focusedElement: {
+          type: Object,
+          notify: true
+        },
+        limitAge: {
+          type: Number,
+          value: 0
+        }
+      },
+      observers: [
+        '_computeValue(_year,_month,_day)'
+      ],
+      _computeValue: function(year, month, day) {
+
+        if (year || month || day) {
+          if ( Polymer.dom(this.root).activeElement !== this.focusedElement ) {
+            this.focusedElement = Polymer.dom(this.root).activeElement ;
+          }
+          // triger validate method
+          this.value = year.trim() + this.delimiter + month.trim() + this.delimiter + day.trim();
+        }
+      },
+    });
+  </script>
+</dom-module>
