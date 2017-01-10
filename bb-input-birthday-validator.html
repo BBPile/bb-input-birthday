@@ -22,7 +22,10 @@
     validate: function(value) {
       var isValid = true;
       var codeVal='';
-      var arr = value.split(this.delimiter)
+
+      if ( !value ) return isValid;
+
+      var arr = value.split(this.delimiter);
 
       for (var i=0, len=arr.length; i<len; i++) {
           if(i==0) {
