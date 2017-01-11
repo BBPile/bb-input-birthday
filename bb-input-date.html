@@ -2,6 +2,7 @@
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../iron-validatable-behavior/iron-validatable-behavior.html">
 <link rel="import" href="bb-input-birthday-validator.html">
+<link rel="import" href="../paper-styles/typography.html">
 
 <dom-module id="bb-input-date">
   <template>
@@ -12,6 +13,31 @@
       :host([hidden]) {
         display: none !important;
       }
+      .input-label {
+          position: absolute;
+          -webkit-transition: -webkit-transform 0.25s, width 0.25s;
+          transition: transform 0.25s, width 0.25s;
+          -webkit-transform-origin: left top;
+          transform-origin: left top;
+
+          width: 100%;
+          color: var(--paper-input-container-color, --secondary-text-color);
+          font: inherit;
+          @apply(--paper-font-common-nowrap);
+          @apply(--paper-font-subhead);
+          @apply(--paper-input-container-label);
+          @apply(--paper-transition-easing);
+       }
+       .input-label.label-is-floating {
+         	position: absolute;
+         	-webkit-transform: translateY(-75%) scale(0.1);
+            transform: translateY(-75%) scale(0.1);
+
+          /* Since we scale to 75/100 of the size, we actually have 100/75 of the
+          original space now available  */
+          width: 133%;
+          @apply(--paper-input-container-label-floating);
+       }
       input[is="iron-input"] {
         font: inherit;
         outline: none;
@@ -35,32 +61,49 @@
       .day {
         @apply(--layout-flex);
       }
+
     </style>
     <bb-input-birthday-validator
               limit-age="[[limitAge]]"
               delimiter="[[delimiter]]" ></bb-input-birthday-validator>
     <div class="container">
-      <input is="iron-input"
-              class="year"
-              maxlength="4"
-              bind-value="{{_year}}"
-              size="4"
-              aria-label="">
-                [[delimiter]]</input>
-      <input is="iron-input"
-              class="month"
-              maxlength="2"
-              bind-value="{{_month}}"
-              size="2"
-              aria-label="">
-                [[delimiter]]</input>
-      <input is="iron-input"
-              class="day"
-              maxlength="2"
-              bind-value="{{_day}}"
-              size="2"
-              aria-label="">
-      </input>
+      <div class="year">
+          <div id="label-year" class$="[[_computedLabelClass(_year)]]">YYYY</div>
+          <input is="iron-input"
+                  id="year"
+                  maxlength="4"
+                  bind-value="{{_year}}"
+                  size="4"
+                  prevent-invalid-input
+                  allowed-pattern="[0-9]"
+                  invalid="{{invalid}}">
+                    [[delimiter]]
+                  </input>
+      </div>
+      <div class="month">
+          <div id="label-month" class$="[[_computedLabelClass(_month)]]">MM</div>
+          <input is="iron-input"
+                  id="month"
+                  maxlength="2"
+                  bind-value="{{_month}}"
+                  size="2"
+                  prevent-invalid-input
+                  allowed-pattern="[0-9]"
+                  invalid="{{invalid}}">
+                    [[delimiter]]</input>
+      </div>
+      <div class="day">
+          <div id="label-day" class$="[[_computedLabelClass(_day)]]">DD</div>
+          <input is="iron-input"
+                  id="day"
+                  maxlength="2"
+                  bind-value="{{_day}}"
+                  size="2"
+                  prevent-invalid-input
+                  allowed-pattern="[0-9]"
+                  invalid="{{invalid}}">
+          </input>
+      </div>
     </div>
   </template>
 
@@ -105,7 +148,8 @@
         limitAge: {
           type: Number,
           value: 0
-        }
+        },
+
       },
       observers: [
         '_computeValue(_year,_month,_day)'
@@ -116,9 +160,22 @@
           if ( Polymer.dom(this.root).activeElement !== this.focusedElement ) {
             this.focusedElement = Polymer.dom(this.root).activeElement ;
           }
-          // triger validate method
-          this.value = year.trim() + this.delimiter + month.trim() + this.delimiter + day.trim();
         }
+        // triger validate method
+        this.value = year.trim() + this.delimiter + month.trim() + this.delimiter + day.trim();
+      },
+      _computedLabelClass: function(_inputHasContent) {
+        var cls = 'input-label';
+          if (_inputHasContent) {
+            cls += ' label-is-floating';
+            // this.$.labelAndInputContainer.style.position = 'absolute';
+
+          } else {
+            // this.$.labelAndInputContainer.style.position = 'relative';
+          }
+
+
+        return cls;
       },
     });
   </script>

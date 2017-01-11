@@ -16,6 +16,7 @@
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../paper-input/paper-input-container.html">
 <link rel="import" href="../paper-input/paper-input-error.html">
+<link rel="import" href="../iron-form-element-behavior/iron-form-element-behavior.html">
 <link rel="import" href="bb-input-date.html">
 
 <dom-module id="bb-input-birthday">
@@ -61,13 +62,14 @@
     </style>
     <paper-input-container always-float-label auto-validate attr-for-value="value">
       <content select="[prefix]"></content>
-      <label>[[label]]</label>
+      <label hidden$="[[!label]]" aria-hidden="true" for="bbInputDate">[[label]]</label>
       <bb-input-date id="bbInputDate"
             class="paper-input-input"
             delimiter="[[delimiter]]"
             limit-age="[[limitAge]]"
             invalid="{{invalid}}"
-            value="{{value}}"></bb-input-date>
+            value="{{value}}"
+            placeholder$="[[placeholder]]"></bb-input-date>
       <content select="[suffix]"></content>
       <template is="dom-if" if="{{errorMessage}}">
         <paper-input-error>{{errorMessage}}</paper-input-error>
@@ -82,6 +84,9 @@
     Polymer({
 
       is: 'bb-input-birthday',
+      behaviors: [
+        Polymer.IronFormElementBehavior
+      ],
       properties: {
         value: {
           type: String,
