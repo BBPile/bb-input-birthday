@@ -7,7 +7,8 @@
     "iron-validator-behavior": "PolymerElements/iron-validator-behavior#^1.0.1",
     "iron-input": "PolymerElements/iron-input#^1.0.10",
     "iron-validatable-behavior": "PolymerElements/iron-validatable-behavior#^1.1.1",
-    "paper-icon-button": "Polymer/paper-icon-button#^0.5.6"
+    "paper-icon-button": "Polymer/paper-icon-button#^0.5.6",
+    "paper-styles": "PolymerElements/paper-styles#^1.1.5"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",

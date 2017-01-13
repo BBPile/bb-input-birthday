@@ -11,57 +11,69 @@
 
     <link rel="import" href="../bb-input-birthday.html">
     <link rel="import" href="../../paper-icon-button/paper-icon-button.html">
+    <link rel="import" href="../../iron-flex-layout/iron-flex-layout.html">
     <link rel="import" href="../../iron-icons/iron-icons.html">
 
     <style is="custom-style" include="demo-pages-shared-styles">
     </style>
   </head>
-  <body unresolved>
+  <body>
 
     <div class="vertical-section-container centered">
       <h3>Basic bb-input-birthday Demo</h3>
       <demo-snippet>
         <template>
+          <div class="card" >
 
-          <bb-input-birthday
-                id="inputBirthday"
-                label="Birthday(yyyy-mm-dd)"
-                delimiter="."
-                limit-age="15"
-                show-value>
-                <paper-icon-button class="clear" suffix icon="icons:clear" on-tap="_clearInput" alt="clear" title="clear" tabindex="-1"></paper-icon-button>
-              </bb-input-birthday>
-          <button type="button" id="button" onclick="clickMe()">Click me</button>
+              <form id="thisform" >
+                <bb-input-birthday
+                      id="inputBirthday"
+                      label="Birthday"
+                      delimiter="-"
+                      limit-age="15"
+                      show-value
+                      required
+                      placeholder="YYYY-MM-DD"
+                      >
+                      <iron-icon prefix icon="icons:date-range" ></iron-icon>
+                      <paper-icon-button class="clear" suffix icon="icons:clear" onclick="_clearInput(this)" alt="clear" title="clear" ></paper-icon-button>
+                </bb-input-birthday>
+                <button type="button" id="button" onclick="clickMe()">Set date</button>
+              </form>
+              <button type="button" id="button" onclick="loadEvent()">Show error-message</button>
+          </div>
         </template>
       </demo-snippet>
     </div>
 
     <script>
-        function clickMe() {
+        function loadEvent() {
           document.getElementById('inputBirthday')
-                  .addEventListener('bb-input-birthday-error-message',function (e) {
-                    var msg = '';
-                    console.log(e.detail.code); // true
+          .addEventListener('bb-input-birthday-error-message',function (e) {
+            var msg = '';
+            console.log(e.detail.code); // true
 
-                    if(e.detail.code == 'error-year'){
-                      msg= 'Year is less than 15 years';
-                    }
-                    else if(e.detail.code == 'error-month'){
-                      msg= 'Month ranges is incorrect';
-                    }
-                    else if(e.detail.code == 'error-day'){
-                      msg= 'Day ranges is incorrect';
-                    }
-                    Polymer.dom(this).setAttribute('error-message',msg);
-                    // e.target.setAttribute('error-message',msg);
+            if(e.detail.code == 'error-year'){
+              msg= 'Year is less than 15 years';
+            }
+            else if(e.detail.code == 'error-month'){
+              msg= 'Month ranges is incorrect';
+            }
+            else if(e.detail.code == 'error-day'){
+              msg= 'Day ranges is incorrect';
+            }
+            document.getElementById('inputBirthday').setAttribute('error-message',msg);
           });
+        }
 
-          document.getElementById('inputBirthday').setValue('1970.03.20');
+        function clickMe() {
+
+          document.getElementById('inputBirthday').setValue('1970-03-20');
 
         }
 
         function _clearInput(e){
-            e.currentTarget.parentNode.setValue('--');
+            document.getElementById('inputBirthday').setValue('--');
 
         }
 
