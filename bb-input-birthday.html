@@ -71,7 +71,7 @@
             invalid="{{invalid}}"
             value="{{value}}"
             required="[[required]]"
-            focused="{{focused}}"></bb-input-date>
+            focused="{{focused}}" ></bb-input-date>
       <content select="[suffix]"></content>
       <template is="dom-if" if="{{errorMessage}}">
         <paper-input-error>{{errorMessage}}</paper-input-error>
@@ -90,10 +90,13 @@
         Polymer.IronFormElementBehavior
       ],
       properties: {
+        // note: initial value as '' to make a property invalid 'false' in the callback ready method.
         value: {
           type: String,
           notify: true,
-          reflectToAttribute: true
+          value: function() {
+            return '';
+          }
         },
         label: {
           type: String,
@@ -118,12 +121,14 @@
           type: Boolean,
           notify: true
         },
-
+      },
+      get fullValue() {
+        return this.$.bbInputDate.valueForValidation;
       },
       /**
        * set String date-value to an respective input-elements by spliting them by the delimiter.
        */
-      setValue: function(val) {
+      set fullValue (val) {
         if(val) {
           var arr = val.split(this.delimiter);
           if( arr ) {
@@ -137,6 +142,7 @@
           arr = null;
         }
       },
+
     });
   </script>
 </dom-module>

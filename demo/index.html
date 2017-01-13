@@ -41,6 +41,7 @@
                 <button type="button" id="button" onclick="clickMe()">Set date</button>
               </form>
               <button type="button" id="button" onclick="loadEvent()">Show error-message</button>
+              <button type="button" id="button" onclick="getFullValue()">Show full-value</button>
           </div>
         </template>
       </demo-snippet>
@@ -68,12 +69,18 @@
 
         function clickMe() {
 
-          document.getElementById('inputBirthday').setValue('1970-03-20');
+          document.getElementById('inputBirthday').fullValue = '1970-03-20';
+
+        }
+
+        function getFullValue() {
+
+          console.log(document.getElementById('inputBirthday').fullValue) ;
 
         }
 
         function _clearInput(e){
-            document.getElementById('inputBirthday').setValue('--');
+            document.getElementById('inputBirthday').fullValue = '--';
 
         }
 

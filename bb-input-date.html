@@ -140,7 +140,9 @@
           type: String
         },
         valueForValidation: {
-          type: String
+          type: String,
+          notify: true,
+          readOnly: true
         },
         _year: {
           type: String,
@@ -158,7 +160,7 @@
           type: String,
           value: 'bb-input-birthday-validator'
         },
-        // 
+        //
         delimiter: {
           type: String,
           value: '-'
@@ -198,7 +200,7 @@
         day_t = day_t && day_t.length==1 ? '0'+day_t : day_t;
 
         // Including with the delimiter makes it easy to be validated in validator
-        this.valueForValidation = year_t + this.delimiter + month_t + this.delimiter + day_t;
+        this._setValueForValidation( year_t + this.delimiter + month_t + this.delimiter + day_t );
 
         // this value without the delimiter is being handled in the element named 'paper-input-container'
         // triger validate method
@@ -224,7 +226,6 @@
       hasValidator: function() {
         return this._validator != null;
       },
-
       /**
        * Returns true if the `value` is valid, and updates `invalid`. If you want
        * your element to have custom validation logic, do not override this method;
