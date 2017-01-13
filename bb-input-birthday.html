@@ -23,7 +23,7 @@
   <template>
     <style>
       :host {
-        display: inline-block;
+        display: block;
         width: 100%;
       }
       :host([hidden]) {
@@ -31,10 +31,6 @@
       }
       :host([focused]) {
         outline: none;
-      }
-
-      :host([hidden]) {
-        display: none !important;
       }
 
       bb-input-date::-webkit-input-placeholder {
@@ -60,7 +56,12 @@
         color: blue;
       }
     </style>
-    <paper-input-container always-float-label auto-validate attr-for-value="value">
+    <paper-input-container
+          id="bbInputContainer"
+          always-float-label
+          auto-validate
+          attr-for-value="value"
+          focused="{{focused}}">
       <content select="[prefix]"></content>
       <label hidden$="[[!label]]" aria-hidden="true" for="bbInputDate">[[label]]</label>
       <bb-input-date id="bbInputDate"
@@ -69,7 +70,8 @@
             limit-age="[[limitAge]]"
             invalid="{{invalid}}"
             value="{{value}}"
-            placeholder$="[[placeholder]]"></bb-input-date>
+            required="[[required]]"
+            focused="{{focused}}"></bb-input-date>
       <content select="[suffix]"></content>
       <template is="dom-if" if="{{errorMessage}}">
         <paper-input-error>{{errorMessage}}</paper-input-error>
@@ -108,14 +110,14 @@
           type: String,
           notify: true
         },
-        invalid: {
-          type: Boolean,
-          observer: '_invalidChanged'
-        },
         showValue: {
           type: Boolean,
           value: false
-        }
+        },
+        required: {
+          type: Boolean,
+          notify: true
+        },
 
       },
       /**
@@ -135,11 +137,6 @@
           arr = null;
         }
       },
-      _invalidChanged: function() {
-        if (!this.invalid) {
-          this.value = this.$.bbInputDate.value;
-        }
-      }
     });
   </script>
 </dom-module>

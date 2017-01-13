@@ -16,44 +16,48 @@
       delimiter: {
         type: String,
         value: '-'
+      },
+      valueForValidation: {
+        type: String
       }
     },
     // validate the value and its date-format for birthday.
     validate: function(value) {
-      var isValid = true;
-      var codeVal='';
 
-      if ( !value ) return isValid;
+      var valid = false;
 
-      var arr = value.split(this.delimiter);
 
-      for (var i=0, len=arr.length; i<len; i++) {
-          if(i==0) {
-            //  Year-range ('1900' < year <= this year - limitAge)
-            isValid = arr[i] > 1900 && arr[i] <= (new Date().getFullYear() - this.limitAge) ? true: false;
-            codeVal = !isValid ? 'error-year' : '';
+      if (value && this.valueForValidation) {
+          var arr = this.valueForValidation.split(this.delimiter);
 
-          } else if (isValid && i == 1) {
-            //  Month-range ('01' <= month <= '12')
-            isValid = arr[i] >= 1 && arr[i] <= 12 ? true: false;
-            codeVal = !isValid ? 'error-month' : '';
+          for (var i=0, len=arr.length; i<len; i++) {
+            if(i==0 ) {
+              //  Year-range ('1900' < year <= this year - limitAge)
+              valid = arr[i] > 1900 && arr[i] <= (new Date().getFullYear() - this.limitAge) ? true: false;
+              this.message = !valid ? 'error-year' : '';
 
-          } else if (isValid && i == 2) {
-            //  Day-range ('01' <= day <= last day of this month)
-            isValid = arr[i] >= 1 && arr[i] <= (new Date(arr[0],arr[1],0)).getDate() ? true: false;
-            codeVal = !isValid ? 'error-day' : '';
+            } else if (valid && i == 1 ) {
+              //  Month-range ('01' <= month <= '12')
+              valid = arr[i] >= 01 && arr[i] <= 12 ? true: false;
+              this.message = !valid ? 'error-month' : '';
 
+            } else if (valid && i == 2 ) {
+              //  Day-range ('01' <= day <= last day of this month)
+              valid = arr[i] >= 1 && arr[i] <= (new Date(arr[0],arr[1],0)).getDate() ? true: false;
+              this.message = !valid ? 'error-day' : '';
+
+            }
           }
 
           // announce error-message
-          if (!isValid) {
-            this.fire('bb-input-birthday-error-message',{code:codeVal});
+          if (!valid) {
+            this.fire('bb-input-birthday-error-message', {code: this.message});
             arr = null;
-            return isValid;
+            return valid;
           }
-
+          arr = null;
       }
-      return isValid;
+      return valid;
     }
   });
 </script>

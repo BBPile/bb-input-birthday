@@ -8,69 +8,90 @@
   <template>
     <style>
       :host {
-        display: inline-block;
+          display: inline-block;
       }
       :host([hidden]) {
-        display: none !important;
+          display: none !important;
       }
-      .input-label {
+      label.input-label {
           position: absolute;
+          top: 0;
+          right: 0;
+          left: 0;
+          width: 100%;
+          font: inherit;
+          color: var(--paper-input-container-color, --secondary-text-color);
           -webkit-transition: -webkit-transform 0.25s, width 0.25s;
           transition: transform 0.25s, width 0.25s;
           -webkit-transform-origin: left top;
           transform-origin: left top;
 
-          width: 100%;
-          color: var(--paper-input-container-color, --secondary-text-color);
-          font: inherit;
           @apply(--paper-font-common-nowrap);
           @apply(--paper-font-subhead);
           @apply(--paper-input-container-label);
           @apply(--paper-transition-easing);
        }
-       .input-label.label-is-floating {
+       label.input-label.label-is-floating {
          	position: absolute;
-         	-webkit-transform: translateY(-75%) scale(0.1);
-            transform: translateY(-75%) scale(0.1);
+         	-webkit-transform: translateY(-75%) scale(0.0);
+          transform: translateY(-75%) scale(0.0);
 
           /* Since we scale to 75/100 of the size, we actually have 100/75 of the
           original space now available  */
           width: 133%;
           @apply(--paper-input-container-label-floating);
        }
-      input[is="iron-input"] {
-        font: inherit;
-        outline: none;
-        box-shadow: none;
-        border: none;
-        width: auto;
-        text-align: center;
-      }
-      input {
-        padding-left: 2px;
-      }
+       input[is="iron-input"] {
+           position: relative; /* to make a stacking context */
+           outline: none;
+           box-shadow: none;
+           padding: 0;
+           width: 100%;
+           max-width: 100%;
+           background: transparent;
+           border: none;
+           color: var(--paper-input-container-input-color, --primary-text-color);
+           -webkit-appearance: none;
+           text-align: left;
+           vertical-align: bottom;
+           padding-left: 2px;
+           @apply(--paper-font-subhead);
+           @apply(--paper-input-container-input);
+       }
+
       .container {
         @apply(--layout-horizontal);
+
       }
-      .year {
+      .year-input-container {
+        display: inline-block;
+        position: relative;
+        @apply(--layout-horizontal);
         @apply(--layout-flex-2);
       }
-      .month {
+      .month-input-container {
+        display: inline-block;
+        position: relative;
+        @apply(--layout-horizontal);
         @apply(--layout-flex);
       }
-      .day {
+      .day-input-container {
+        display: inline-block;
+        position: relative;
+        @apply(--layout-horizontal);
         @apply(--layout-flex);
       }
 
     </style>
     <bb-input-birthday-validator
               limit-age="[[limitAge]]"
-              delimiter="[[delimiter]]" ></bb-input-birthday-validator>
+              delimiter="[[delimiter]]"
+              value-for-validation="[[valueForValidation]]"></bb-input-birthday-validator>
     <div class="container">
-      <div class="year">
-          <div id="label-year" class$="[[_computedLabelClass(_year)]]">YYYY</div>
+      <div class="year-input-container">
+          <label class$="[[_computedLabelClass(_year)]]" for="yearInput">YYYY</label>
           <input is="iron-input"
-                  id="year"
+                  id="yearInput"
                   maxlength="4"
                   bind-value="{{_year}}"
                   size="4"
@@ -80,10 +101,10 @@
                     [[delimiter]]
                   </input>
       </div>
-      <div class="month">
-          <div id="label-month" class$="[[_computedLabelClass(_month)]]">MM</div>
+      <div class="month-input-container">
+          <label class$="[[_computedLabelClass(_month)]]" for="monthInput">MM</label>
           <input is="iron-input"
-                  id="month"
+                  id="monthInput"
                   maxlength="2"
                   bind-value="{{_month}}"
                   size="2"
@@ -92,14 +113,13 @@
                   invalid="{{invalid}}">
                     [[delimiter]]</input>
       </div>
-      <div class="day">
-          <div id="label-day" class$="[[_computedLabelClass(_day)]]">DD</div>
+      <div class="day-input-container">
+          <label class$="[[_computedLabelClass(_day)]]" for="dayInput">DD</label>
           <input is="iron-input"
-                  id="day"
+                  id="dayInput"
                   maxlength="2"
                   bind-value="{{_day}}"
                   size="2"
-                  prevent-invalid-input
                   allowed-pattern="[0-9]"
                   invalid="{{invalid}}">
           </input>
@@ -119,6 +139,9 @@
           notify: true,
           type: String
         },
+        valueForValidation: {
+          type: String
+        },
         _year: {
           type: String,
           notify: true
@@ -135,48 +158,108 @@
           type: String,
           value: 'bb-input-birthday-validator'
         },
-        // delimiter where put it into an inter space between items(year,month,and day)
+        // 
         delimiter: {
           type: String,
           value: '-'
-        },
-        // target to validate
-        focusedElement: {
-          type: Object,
-          notify: true
         },
         limitAge: {
           type: Number,
           value: 0
         },
-
+        required: {
+          type: Boolean
+        },
+        _validator: {
+          type: Object,
+          computed: '__computeValidator(validator)'
+        }
       },
       observers: [
-        '_computeValue(_year,_month,_day)'
+        '_computedInputValue(_year,_month,_day)'
       ],
-      _computeValue: function(year, month, day) {
 
-        if (year || month || day) {
-          if ( Polymer.dom(this.root).activeElement !== this.focusedElement ) {
-            this.focusedElement = Polymer.dom(this.root).activeElement ;
-          }
-        }
+      /**
+       * Making both property valueForValidation and value
+       * for used in custom validator.
+       *
+       * @param {String} year corresponds to the property _year.
+       * @param {String} month corresponds to the property _month.
+       * @param {String} day corresponds to the property _day.
+       */
+      _computedInputValue: function(year, month, day) {
+
+        var year_t = year.trim();
+        var month_t = month.trim();
+        var day_t = day.trim();
+
+        // make the value two digit, if its length is one.
+        month_t = month_t && month_t.length==1 ? '0'+month_t : month_t;
+        day_t = day_t && day_t.length==1 ? '0'+day_t : day_t;
+
+        // Including with the delimiter makes it easy to be validated in validator
+        this.valueForValidation = year_t + this.delimiter + month_t + this.delimiter + day_t;
+
+        // this value without the delimiter is being handled in the element named 'paper-input-container'
         // triger validate method
-        this.value = year.trim() + this.delimiter + month.trim() + this.delimiter + day.trim();
+        this.value = year_t + month_t + day_t;
       },
+
+      /**
+       * Adding a class-name to the classList of the label
+       * to make a label floating or nofloating.
+       *
+       * @param {Boolean} _inputHasContent True if the input-value exists,
+       */
       _computedLabelClass: function(_inputHasContent) {
-        var cls = 'input-label';
+          var cls = 'input-label';
           if (_inputHasContent) {
             cls += ' label-is-floating';
-            // this.$.labelAndInputContainer.style.position = 'absolute';
-
-          } else {
-            // this.$.labelAndInputContainer.style.position = 'relative';
           }
-
-
-        return cls;
+          return cls;
       },
+      /**
+       * @return {boolean} True if the validator `validator` exists.
+       */
+      hasValidator: function() {
+        return this._validator != null;
+      },
+
+      /**
+       * Returns true if the `value` is valid, and updates `invalid`. If you want
+       * your element to have custom validation logic, do not override this method;
+       * override `_getValidity(value)` instead.
+
+       * @param {Object} value The value to be validated. By default, it is passed
+       * to the validator's `validate()` function, if a validator is set.
+       * @return {boolean} True if `value` is valid.
+       */
+      validate: function(value) {
+        this.invalid = !this._getValidity(value);
+        return !this.invalid;
+      },
+
+      /**
+       * Returns true if `value` is valid.  By default, it is passed
+       * to the validator's `validate()` function, if a validator is set. You
+       * should override this method if you want to implement custom validity
+       * logic for your element.
+       *
+       * @param {Object} value The value to be validated.
+       * @return {boolean} True if `value` is valid.
+       */
+
+      _getValidity: function(value) {
+        if (this.hasValidator()) {
+          return this._validator.validate(value);
+        }
+        return true;
+      },
+      __computeValidator: function() {
+        return Polymer.IronValidatableBehaviorMeta &&
+            Polymer.IronValidatableBehaviorMeta.byKey(this.validator);
+      }
+
     });
   </script>
 </dom-module>
